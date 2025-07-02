@@ -1,0 +1,126 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# MCP Development Patterns - Lever ATS Integration
+
+## MCP Tool Development Guidelines
+
+When working with the Lever MCP server in [server.py](mdc:mcp/server.py), follow these established patterns:
+
+### 🛠️ Tool Structure Pattern
+
+```python
+@mcp.tool()
+async def lever_tool_name(
+    required_param: str,
+    optional_param: Optional[str] = None,
+    limit: int = 100
+) -> str:
+    """
+    Clear description of what the tool does.
+    
+    Args:
+        required_param: Description of required parameter
+        optional_param: Description of optional parameter
+        limit: Maximum results (default 100)
+    
+    Returns:
+        JSON formatted string with results
+    """
+    try:
+        async with AsyncLeverClient(API_KEY) as client:
+            # Implementation logic here
+            response = await client.api_method(params)
+            
+            # Format results
+            results = {
+                "count": len(data),
+                "data": formatted_data
+            }
+            
+            return json.dumps(results, indent=2)
+            
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+```
+
+### 🔌 API Client Usage ([client.py](mdc:mcp/client.py))
+
+- **Always use async context manager**: `async with AsyncLeverClient(API_KEY) as client:`
+- **Rate limiting is built-in**: 8 requests/second automatically enforced
+- **Error handling**: Client raises exceptions for HTTP errors
+- **Pagination**: Use `offset` parameter and check `hasNext` in responses
+
+### 📋 Response Formatting Standards
+
+All tools must return JSON strings with consistent structure:
+
+```python
+# Success response
+{
+    "count": number,
+    "data": [...],
+    "hasMore": boolean,  # if pagination applies
+    "metadata": {...}    # optional context
+}
+
+# Error response  
+{
+    "error": "Error description"
+}
+```
+
+### 🔍 Search Tool Patterns
+
+The server implements multiple search approaches:
+
+1. **Direct API Search**: [lever_search_candidates](mdc:mcp/server.py) - Uses API filters
+2. **Advanced Multi-Criteria**: [lever_advanced_search](mcp:mcp/server.py) - Client-side filtering
+3. **Company-Specific**: [lever_find_by_company](mcp:mcp/server.py) - Headline parsing
+4. **Quick Find**: [lever_quick_find_candidate](mcp:mcp/server.py) - Limited scope
+
+### 🏗️ Adding New Tools
+
+1. **Define the tool** in [server.py](mdc:mcp/server.py) using `@mcp.tool()` decorator
+2. **Add API methods** to [client.py](mdc:mcp/client.py) if needed
+3. **Update documentation** in [docs/tool_testing_questions.md](mdc:docs/tool_testing_questions.md)
+4. **Test thoroughly** using the testing guide
+
+### 🔑 Environment Configuration
+
+- **API Key**: Stored in [.env](mdc:mcp/.env) as `LEVER_API_KEY`
+- **Rate Limiting**: 8 req/sec (configurable in AsyncLeverClient)
+- **Timeouts**: 30 second HTTP timeout configured
+
+### 📊 Data Formatting Helpers
+
+Use consistent formatting functions:
+- `format_opportunity(opp)` - Standardizes candidate data
+- `format_posting(posting)` - Standardizes job posting data
+- Always include ID, name, stage, and key metadata
+
+### 🚀 Performance Considerations
+
+- **Pagination**: Lever API max 100 results per request
+- **Client-side filtering**: When API doesn't support complex queries
+- **Result limiting**: Default to reasonable limits (25-100) to prevent timeouts
+- **Parallel requests**: Use when fetching independent data sets
+
+### 🧪 Testing Integration
+
+Follow patterns from [tool_testing_questions.md](mdc:docs/tool_testing_questions.md):
+- Test with real data when possible
+- Provide fallback test scenarios for empty results
+- Include edge cases (archived candidates, invalid IDs)
+- Verify JSON response format
+
+### 📝 Documentation Requirements
+
+When adding tools, update:
+1. **Function docstrings** - Complete parameter and return descriptions
+2. **Testing guide** - Add test scenarios to [docs/tool_testing_questions.md](mdc:docs/tool_testing_questions.md)
+3. **Use cases** - Add business examples to [docs/usecases.md](mdc:docs/usecases.md)
+
+This ensures consistency across all MCP tools and maintains integration quality.

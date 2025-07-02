@@ -1,0 +1,76 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Lever MCP Integration - Project Structure Rules
+
+## Project Organization
+
+This project follows a strict organizational structure for the Lever MCP (Model Context Protocol) integration:
+
+### 🔧 MCP Implementation (`mcp/` directory)
+- **Core MCP Server**: [server.py](mdc:mcp/server.py) - Main MCP server with 21+ Lever ATS tools
+- **API Client**: [client.py](mdc:mcp/client.py) - Async Lever API client with rate limiting
+- **Environment Config**: [.env](mdc:mcp/.env) - API keys and environment variables
+
+### 📚 Documentation (`docs/` directory)
+- **Product Requirements**: [prd.md](mdc:docs/prd.md) - Complete product specification
+- **Technical Guide**: [technical_documentation.md](mdc:docs/technical_documentation.md) - Implementation blueprint
+- **Testing Guide**: [tool_testing_questions.md](mdc:docs/tool_testing_questions.md) - Tool testing procedures
+- **Use Cases**: [usecases.md](mdc:docs/usecases.md) - Business use cases and examples
+- **Search Strategy**: [search_consolidation_plan.md](mdc:docs/search_consolidation_plan.md) - Search tool planning
+
+### 🐍 Environment (`venv/` directory)
+- Python virtual environment with all dependencies (aiohttp, mcp, python-dotenv)
+
+### 📋 Project Root Files
+- **Main Documentation**: [README.md](mdc:README.md) - Project overview and setup
+- **Claude Instructions**: [CLAUDE.md](mdc:CLAUDE.md) - Claude-specific documentation
+- **Dependencies**: [requirements.txt](mdc:requirements.txt) - Python package requirements
+- **Git Config**: [.gitignore](mdc:.gitignore) - Git ignore patterns
+
+## File Creation Rules
+
+### ✅ ALWAYS Place New Files In:
+
+1. **New Documentation Files** → `docs/` directory
+   - Technical guides, API documentation, planning docs
+   - Use `.md` extension for Markdown files
+   - Reference other docs using relative paths: `docs/filename.md`
+
+2. **New MCP Tools/Code** → `mcp/` directory
+   - Server enhancements, new tools, API client modifications
+   - Keep Python files in `mcp/` with existing server and client code
+   - Environment files (`.env`, config) stay in `mcp/`
+
+3. **New Project Configuration** → Root directory
+   - Package files, CI/CD configs, project-level settings
+   - Keep root clean - only essential project files
+
+### ❌ NEVER Create Files In:
+- Root directory for documentation (use `docs/` instead)
+- `docs/` for implementation code (use `mcp/` instead)
+- Scattered locations - maintain the organized structure
+
+### 🔄 When Modifying Existing Files:
+- **Server Tools**: Edit [server.py](mdc:mcp/server.py) for new MCP tools
+- **API Client**: Edit [client.py](mdc:mcp/client.py) for API enhancements
+- **Documentation**: Update appropriate file in [docs/](mcp:docs/) directory
+- **Dependencies**: Update [requirements.txt](mdc:requirements.txt) for new packages
+
+## Key Implementation Notes
+
+- This is a **Lever ATS MCP Server** that enables natural language recruiting workflows
+- Server implements 21+ tools for candidate search, management, and workflow automation
+- Client uses async/await with rate limiting (8 req/sec) for Lever API
+- All tools return JSON formatted responses for Claude Desktop integration
+
+## Development Workflow
+
+1. **New Features**: Add tools to [server.py](mdc:mcp/server.py)
+2. **API Changes**: Modify [client.py](mcp:mcp/client.py)
+3. **Documentation**: Update relevant files in [docs/](mcp:docs/)
+4. **Testing**: Follow [tool_testing_questions.md](mdc:docs/tool_testing_questions.md)
+
+Maintain this structure to ensure clean, navigable, and maintainable codebase.
