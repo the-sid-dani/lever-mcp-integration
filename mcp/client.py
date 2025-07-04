@@ -210,22 +210,6 @@ class AsyncLeverClient:
         """Get specific application details."""
         return await self._make_request('GET', f'/opportunities/{opportunity_id}/applications/{application_id}')
     
-    async def create_application(
-        self, 
-        opportunity_id: str,
-        posting_id: str,
-        user_id: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """Create an application for a posting."""
-        data = {"postingId": posting_id}
-        if user_id:
-            data["userId"] = user_id
-        
-        return await self._make_request(
-            'POST',
-            f'/opportunities/{opportunity_id}/applications',
-            json_data=data
-        )
     
     
     async def paginate_all(

@@ -27,8 +27,8 @@ This is a Model Context Protocol (MCP) server that integrates Lever ATS with Cla
 
 ### Core Components
 
-1. **server.py** (1,718 lines): Main MCP server implementation
-   - Implements 40+ recruiting tools as MCP endpoints
+1. **server.py**: Main MCP server implementation
+   - Implements 16 recruiting tools as MCP endpoints
    - Handles rate limiting (8 req/sec, below Lever's 10 req/sec limit)
    - Manages tool routing and response formatting
 
@@ -65,6 +65,7 @@ This is a Model Context Protocol (MCP) server that integrates Lever ATS with Cla
 - lever_filter_by_companies_efficient - Too complex, use find_by_company or advanced_search
 - lever_company_search_simple - Query parameter doesn't work well, use find_by_company
 - lever_debug_search - Not needed for recruiters, was for development only
+- lever_create_application - POST operations not allowed by Lever API, applications must be created through web interface
 
 ## Common Development Tasks
 
@@ -105,7 +106,9 @@ This project relies on manual testing through Claude Desktop. When making change
 ### Lever API Restrictions
 1. **No Stage Modifications**: The Lever API does not allow POST operations for stage changes, even with full API access. This is a platform-level restriction. Stage changes must be done manually through the Lever web interface.
 
-2. **No Text Search**: The `/opportunities` endpoint doesn't support query parameters for text search. Name searches require fetching candidates and filtering locally.
+2. **No Application Creation**: The Lever API does not allow POST operations to create new applications. Cross-posting candidates to multiple roles must be done through the Lever web interface.
+
+3. **No Text Search**: The `/opportunities` endpoint doesn't support query parameters for text search. Name searches require fetching candidates and filtering locally.
 
 ### Large Result Sets
 When dealing with 2000+ candidates:

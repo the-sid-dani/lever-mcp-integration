@@ -1,7 +1,7 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 # MCP Development Patterns - Lever ATS Integration
 
@@ -77,9 +77,9 @@ All tools must return JSON strings with consistent structure:
 The server implements multiple search approaches:
 
 1. **Direct API Search**: [lever_search_candidates](mdc:mcp/server.py) - Uses API filters
-2. **Advanced Multi-Criteria**: [lever_advanced_search](mcp:mcp/server.py) - Client-side filtering
-3. **Company-Specific**: [lever_find_by_company](mcp:mcp/server.py) - Headline parsing
-4. **Quick Find**: [lever_quick_find_candidate](mcp:mcp/server.py) - Limited scope
+2. **Advanced Multi-Criteria**: [lever_advanced_search](mdc:mcp:mcp/server.py) - Client-side filtering
+3. **Company-Specific**: [lever_find_by_company](mdc:mcp:mcp/server.py) - Headline parsing
+4. **Quick Find**: [lever_quick_find_candidate](mdc:mcp:mcp/server.py) - Limited scope
 
 ### 🏗️ Adding New Tools
 

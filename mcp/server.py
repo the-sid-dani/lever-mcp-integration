@@ -11,8 +11,9 @@ from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from client import AsyncLeverClient
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from parent directory
+from pathlib import Path
+load_dotenv(Path(__file__).parent.parent / '.env')
 
 # Initialize MCP server
 mcp = FastMCP("Lever ATS")
@@ -694,9 +695,15 @@ async def lever_advanced_search(
             # Get all candidates with pagination
             all_candidates = []
             offset = None
-            max_fetch = limit * 10 if (companies or skills or locations) else limit
+            # Fetch more candidates when filtering to ensure we get enough matches
+            # Reduced from 20x to 10x to avoid rate limits
+            max_fetch = min(limit * 10, 1000) if (companies or skills or locations) else limit
             
             while len(all_candidates) < max_fetch:
+                # Add delay between requests to avoid rate limiting
+                if offset is not None:  # Not the first request
+                    await asyncio.sleep(0.2)  # 200ms delay = max 5 requests/second
+                
                 response = await client.get_opportunities(
                     stage_id=stage,
                     posting_id=posting_id,
@@ -742,6 +749,11 @@ async def lever_advanced_search(
                     # Combine all text for skills search
                     c_all_text = f"{c_name} {' '.join(c_emails)} {' '.join(c_tags)} {c_headline} {' '.join(c_organizations)}".lower()
                     
+                    # Also check if resume exists for more comprehensive searching
+                    c_resume = str(c.get('resume', '')).lower()
+                    if c_resume:
+                        c_all_text += f" {c_resume}"
+                    
                     # Check each criteria
                     # Company match: check in headline (primary) or organizations
                     company_match = not company_list or any(comp in c_headline for comp in company_list) or any(comp in org for comp in company_list for org in c_organizations)
@@ -749,8 +761,21 @@ async def lever_advanced_search(
                     # Skills match: ANY skill match (OR logic)
                     skill_match = not skill_list or any(skill in c_all_text for skill in skill_list)
                     
-                    # Location match: ANY location match
-                    location_match = not location_list or any(loc in c_location for loc in location_list)
+                    # Location match: ANY location match (handle UK variations)
+                    # Check for UK-specific variations
+                    uk_variations = ['uk', 'united kingdom', 'england', 'scotland', 'wales', 'northern ireland', 'britain', 'gb']
+                    location_match = True
+                    if location_list:
+                        location_match = False
+                        for loc in location_list:
+                            # Direct match
+                            if loc in c_location:
+                                location_match = True
+                                break
+                            # Check UK variations
+                            if loc in ['uk', 'united kingdom'] and any(uk_var in c_location for uk_var in uk_variations):
+                                location_match = True
+                                break
                     
                     # Tag match: ANY tag match
                     tag_match = not tag_list or any(tag in c_tags for tag in tag_list)
@@ -786,7 +811,21 @@ async def lever_advanced_search(
             return json.dumps(results, indent=2)
             
     except Exception as e:
-        return json.dumps({"error": str(e)})
+        # Return a proper response structure even on error
+        error_result = {
+            "error": str(e),
+            "count": 0,
+            "search_criteria": {
+                "companies": companies,
+                "skills": skills,
+                "locations": locations,
+                "stage": stage,
+                "tags": tags,
+                "posting": posting_id
+            },
+            "candidates": []
+        }
+        return json.dumps(error_result, indent=2)
 
 
 @mcp.tool()
@@ -1126,51 +1165,6 @@ async def lever_get_application(
             }
             
             return json.dumps(result, indent=2)
-            
-    except Exception as e:
-        return json.dumps({"error": str(e)})
-
-
-@mcp.tool()
-async def lever_create_application(
-    opportunity_id: str,
-    posting_id: str,
-    user_id: Optional[str] = None
-) -> str:
-    """
-    Apply a candidate to a job posting.
-    
-    Args:
-        opportunity_id: The candidate's opportunity ID
-        posting_id: The job posting ID to apply to
-        user_id: Optional user ID who is creating the application
-    
-    Returns:
-        Confirmation of application creation
-    """
-    try:
-        async with AsyncLeverClient(API_KEY) as client:
-            # Get candidate and posting info
-            opp_response = await client.get_opportunity(opportunity_id)
-            opportunity = opp_response.get("data", {})
-            
-            # Create the application
-            result = await client.create_application(
-                opportunity_id=opportunity_id,
-                posting_id=posting_id,
-                user_id=user_id
-            )
-            
-            application = {
-                "success": True,
-                "candidate": opportunity.get("name", "Unknown"),
-                "application_id": result.get("id", ""),
-                "posting": result.get("posting", {}).get("text", "Unknown") if result.get("posting") else "Unknown",
-                "status": result.get("status", "active"),
-                "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            
-            return json.dumps(application, indent=2)
             
     except Exception as e:
         return json.dumps({"error": str(e)})

@@ -1,7 +1,7 @@
 ---
-description:
-globs:
-alwaysApply: false
+description: 
+globs: 
+alwaysApply: true
 ---
 # Lever MCP Integration - Project Structure Rules
 
@@ -56,7 +56,7 @@ This project follows a strict organizational structure for the Lever MCP (Model 
 ### 🔄 When Modifying Existing Files:
 - **Server Tools**: Edit [server.py](mdc:mcp/server.py) for new MCP tools
 - **API Client**: Edit [client.py](mdc:mcp/client.py) for API enhancements
-- **Documentation**: Update appropriate file in [docs/](mcp:docs/) directory
+- **Documentation**: Update appropriate file in [docs/](mdc:mcp:docs) directory
 - **Dependencies**: Update [requirements.txt](mdc:requirements.txt) for new packages
 
 ## Key Implementation Notes
@@ -69,8 +69,8 @@ This project follows a strict organizational structure for the Lever MCP (Model 
 ## Development Workflow
 
 1. **New Features**: Add tools to [server.py](mdc:mcp/server.py)
-2. **API Changes**: Modify [client.py](mcp:mcp/client.py)
-3. **Documentation**: Update relevant files in [docs/](mcp:docs/)
+2. **API Changes**: Modify [client.py](mdc:mcp:mcp/client.py)
+3. **Documentation**: Update relevant files in [docs/](mdc:mcp:docs)
 4. **Testing**: Follow [tool_testing_questions.md](mdc:docs/tool_testing_questions.md)
 
 Maintain this structure to ensure clean, navigable, and maintainable codebase.

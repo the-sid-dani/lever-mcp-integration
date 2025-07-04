@@ -40,7 +40,8 @@ This MCP server provides the following tools for Claude Desktop:
 
 1. Clone or download this repository:
 ```bash
-cd "/Users/sid.dani/Desktop/4. Coding Projects/lever mcp - claude code"
+git clone https://github.com/yourusername/lever-mcp-server.git
+cd lever-mcp-server
 ```
 
 2. Create a virtual environment (recommended):
@@ -61,6 +62,8 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
+**Note**: The `.env` file should be in the project root directory, not in the `mcp/` subdirectory.
+
 5. Add your Lever API key to `.env`:
 ```
 LEVER_API_KEY=your_actual_api_key_here
@@ -79,7 +82,7 @@ LEVER_API_KEY=your_actual_api_key_here
   "mcpServers": {
     "lever-ats": {
       "command": "/path/to/your/venv/bin/python",
-      "args": ["/Users/sid.dani/Desktop/4. Coding Projects/lever mcp - claude code/server.py"],
+      "args": ["/Users/sid.dani/Desktop/4. Coding Projects/lever mcp - claude code/mcp/server.py"],
       "env": {
         "LEVER_API_KEY": "your_lever_api_key_here"
       }
